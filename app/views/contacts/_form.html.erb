@@ -54,7 +54,7 @@
   <p><%= f.text_field :last_name, :label=>l(:field_contact_last_name), :id => 'contact_last_name' %></p>
   <p><%= f.text_field :company, :label=>l(:field_contact_company) -%></p>
   <%= javascript_tag "observeAutocompleteField('contact_company', '#{escape_javascript auto_complete_companies_path}')" %>
-  <p class="extended"><%= f.text_field :birthday, :size => 12 %><%= calendar_for('contact_birthday') %> </p>
+  <p class="extended"><%= f.text_field :birthday, :size => 12, :type =>'date' %><%= calendar_for('contact_birthday') %> </p>
   </div>
   <p id="job_title"><%= f.text_field :job_title, :label => !@contact.is_company ? l(:field_contact_job_title) : l(:field_company_field) %></p>
   <% @contact.build_address if @contact.address.blank? %>

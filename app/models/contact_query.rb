@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2017 RedmineUP
+# Copyright (C) 2010-2019 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -20,8 +20,18 @@
 class ContactQuery < Query
   include CrmQuery
 
+  class QueryMultipleValuesColumn < QueryColumn
+    def value_object(object)
+      value = super
+      value.respond_to?(:to_a) ? value.to_a : value
+    end
+  end
+
   self.queried_class = Contact
   self.view_permission = :view_contacts if Redmine::VERSION.to_s >= '3.4' || RedmineContacts.unstable_branch?
+  self.operators_by_filter_type[:contact] = self.operators_by_filter_type[:list_optional]
+  self.operators_by_filter_type[:contact_tags] = self.operators_by_filter_type[:list_optional]
+  self.operators_by_filter_type[:company] = self.operators_by_filter_type[:list_optional]
 
   self.available_columns = [
     QueryColumn.new(:id, :sortable => "#{Contact.table_name}.id", :default_order => 'desc', :caption => '#'),
@@ -40,7 +50,7 @@ class ContactQuery < Query
     QueryColumn.new(:region, :sortable => "#{Address.table_name}.region", :caption => :label_crm_region),
     QueryColumn.new(:postcode, :sortable => "#{Address.table_name}.postcode", :caption => :label_crm_postcode),
     QueryColumn.new(:country, :sortable => "#{Address.table_name}.country_code", :groupable => "#{Address.table_name}.country_code", :caption => :label_crm_country),
-    QueryColumn.new(:tags, :caption => :label_crm_tags_plural),
+    QueryMultipleValuesColumn.new(:tags, :caption => :label_crm_tags_plural),
     QueryColumn.new(:created_on, :sortable => "#{Contact.table_name}.created_on"),
     QueryColumn.new(:updated_on, :sortable => "#{Contact.table_name}.updated_on"),
     QueryColumn.new(:assigned_to, :sortable => lambda {User.fields_for_order_statement}, :groupable => true),
@@ -54,7 +64,7 @@ class ContactQuery < Query
   end
 
   def initialize_available_filters
-    add_available_filter "tags", :type => :list, :values => Contact.available_tags(project.blank? ? {} : {:project => project.id}).collect{ |t| [t.name, t.name] }, :order => 12
+    add_available_filter 'tags', type: :contact_tags, values: Contact.available_tags(project.blank? ? {} : { project: project.id}).collect{ |t| [t.name, t.name] }, order: 12
   end
 
   def available_columns
@@ -69,7 +79,7 @@ class ContactQuery < Query
 
   def sql_for_tags_field(field, operator, value)
     compare   = operator_for('tags').eql?('=') ? 'IN' : 'NOT IN'
-    ids_list  = Contact.tagged_with(value).collect{|contact| contact.id }.push(0).join(',')
+    ids_list  = Contact.tagged_with(value, match_all: true).collect{|contact| contact.id }.push(0).join(',')
     "( #{Contact.table_name}.id #{compare} (#{ids_list}) ) "
   end
 
@@ -85,5 +95,4 @@ class ContactQuery < Query
   def query_includes
     [:address, :projects, :assigned_to]
   end
-
 end

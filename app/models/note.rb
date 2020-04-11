@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2017 RedmineUP
+# Copyright (C) 2010-2019 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -19,8 +19,7 @@
 
 class Note < ActiveRecord::Base
   unloadable
-
-  attr_accessible :subject, :type_id, :author_id, :note_time, :content, :created_on, :custom_field_values
+  include Redmine::SafeAttributes
 
   belongs_to :author, :class_name => 'User', :foreign_key => 'author_id'
   belongs_to :source, :polymorphic => true, :touch => true
@@ -32,50 +31,65 @@ class Note < ActiveRecord::Base
   acts_as_customizable
   acts_as_attachable
 
-  acts_as_event :title => Proc.new {|o| "#{l(:label_crm_note_for)}: #{o.source.name}"},
-                :type => "icon issue-note icon-issue-note",
+  acts_as_event :title => Proc.new { |o| "#{l(:label_crm_note_for)}: #{o.source.name}" },
+                :type => 'icon issue-note icon-issue-note',
                 :group => :source,
-                :url => Proc.new {|o| {:controller => 'notes', :action => 'show', :id => o.id }},
+                :url => Proc.new { |o| {:controller => 'notes', :action => 'show', :id => o.id } },
                 :description => Proc.new {|o| o.content}
 
   after_create :send_notification
 
   cattr_accessor :note_types
-  @@note_types = {:email => 0, :call => 1, :meeting => 2}
+  @@note_types = { :email => 0, :call => 1, :meeting => 2 }
   cattr_accessor :cut_length
   @@cut_length = 1000
+
+  attr_protected :id if ActiveRecord::VERSION::MAJOR <= 4
+  safe_attributes 'subject', 'type_id', 'author_id', 'note_time', 'content', 'created_on', 'custom_field_values'
+
+  def attachments_visible?(user = User.current)
+    visible?(user) && user.allowed_to?(source.class.attachable_options[:view_permission], project)
+  end
+
+  def attachments_editable?(user = User.current)
+    visible?(user) && user.allowed_to?(source.class.attachable_options[:edit_permission], project)
+  end
+
+  def attachments_deletable?(user = User.current)
+    visible?(user) && user.allowed_to?(source.class.attachable_options[:delete_permission], project)
+  end
 
   def self.note_types
     @@note_types
   end
 
   def note_time
-    self.created_on.to_s(:time) unless self.created_on.blank?
+    created_on.to_s(:time) if created_on.present?
   end
 
   def note_time=(val)
-    if !self.created_on.blank? && val.to_s.gsub(/\s/, "").match(/^(\d{1,2}):(\d{1,2})$/)
-      self.created_on = self.created_on.change({:hour => $1.to_i % 24, :min => $2.to_i % 60})
+    if created_on.present? && val.to_s.gsub(/\s/, '').match(/^(\d{1,2}):(\d{1,2})$/)
+      self.created_on = created_on.change(:hour => $1.to_i % 24, :min => $2.to_i % 60)
     end
   end
 
-  def visible?(usr=nil)
-    self.source.visible?(usr)
+  def visible?(usr = nil)
+    source.visible?(usr)
   end
 
   def project
-     self.source.respond_to?(:project) ? self.source.project : nil
+    source.respond_to?(:project) ? source.project : nil
   end
 
-  def editable_by?(usr, prj=nil)
-    prj ||= @project || self.project
-    usr && (usr.allowed_to?(:delete_notes, prj) || (self.author == usr && usr.allowed_to?(:delete_own_notes, prj)))
+  def editable_by?(usr, prj = nil)
+    prj ||= @project || project
+    usr && (usr.allowed_to?(:delete_notes, prj) || (author == usr && usr.allowed_to?(:delete_own_notes, prj)))
     # usr && usr.logged? && (usr.allowed_to?(:edit_notes, project) || (self.author == usr && usr.allowed_to?(:edit_own_notes, project)))
   end
 
-  def destroyable_by?(usr, prj=nil)
-    prj ||= @project || self.project
-    usr && (usr.allowed_to?(:delete_notes, prj) || (self.author == usr && usr.allowed_to?(:delete_own_notes, prj)))
+  def destroyable_by?(usr, prj = nil)
+    prj ||= @project || project
+    usr && (usr.allowed_to?(:delete_notes, prj) || (author == usr && usr.allowed_to?(:delete_own_notes, prj)))
   end
 
   def created_on
@@ -84,10 +98,9 @@ class Note < ActiveRecord::Base
     zone ? super.in_time_zone(zone) : (super.utc? ? super.localtime : super)
   end
 
-private
+  private
 
   def send_notification
-    Mailer.crm_note_add(self).deliver if Setting.notified_events.include?('crm_note_added')
+    Mailer.crm_note_add(User.current, self).deliver if Setting.notified_events.include?('crm_note_added')
   end
-
 end

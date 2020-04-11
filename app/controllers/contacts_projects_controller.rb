@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2017 RedmineUP
+# Copyright (C) 2010-2019 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -20,9 +20,9 @@
 class ContactsProjectsController < ApplicationController
   unloadable
 
-  before_filter :find_optional_project, :find_contact
-  before_filter :find_related_project, :only => [:destroy, :create]
-  before_filter :check_count, :only => :destroy
+  before_action :find_optional_project, :find_contact
+  before_action :find_related_project, only: [:destroy, :create]
+  before_action :check_count, only: :destroy
 
   accept_api_auth :create, :destroy
 
@@ -35,21 +35,21 @@ class ContactsProjectsController < ApplicationController
       format.js
     end
   rescue ::ActionController::RedirectBackError
-    render :text => 'Project added.', :layout => true
+    render text: 'Project added.', layout: true
   end
 
   def create
-    @contact.projects << @related_project
+    @contact.projects << @related_project unless @contact.projects.include?(@related_project)
     if @contact.save
       respond_to do |format|
         format.html { redirect_to :back }
-        format.js { render :action => "new" }
+        format.js { render action: 'new' }
         format.api  { render_api_ok }
       end
     else
       respond_to do |format|
         format.html { redirect_to :back }
-        format.js { render :action => "new" }
+        format.js { render action: 'new' }
         format.api { render_validation_errors(@contact) }
       end
     end
@@ -59,8 +59,8 @@ class ContactsProjectsController < ApplicationController
     @contact.projects.delete(@related_project)
     respond_to do |format|
       format.html { redirect_to :back }
-      format.js {render :action => "new"}
-      format.api  { render_api_ok }
+      format.js { render action: 'new' }
+      format.api { render_api_ok }
     end
   end
 
@@ -83,5 +83,4 @@ class ContactsProjectsController < ApplicationController
   rescue ActiveRecord::RecordNotFound
     render_404
   end
-
 end

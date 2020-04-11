@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2017 RedmineUP
+# Copyright (C) 2010-2019 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -22,17 +22,18 @@ require_dependency 'contact'
 
 module RedmineContacts
   module Patches
-
     module IssuePatch
       def self.included(base) # :nodoc:
         base.send(:include, InstanceMethods)
         base.class_eval do
           unloadable # Send unloadable so it will not be unloaded in development
-          if ActiveRecord::VERSION::MAJOR >= 4
-            has_and_belongs_to_many :contacts, lambda{ uniq }
-          else
-            has_and_belongs_to_many :contacts, :uniq => true
-          end
+          has_and_belongs_to_many :contacts, :uniq => true
+        end
+      end
+
+      class ContactsRelations < IssueRelation::Relations
+        def to_s(*args)
+          map(&:to_s).join(", ")
         end
       end
 
@@ -40,14 +41,15 @@ module RedmineContacts
         def reject_deal(attributes)
           exists = attributes['id'].present?
           empty = attributes[:deal_id].blank?
-          attributes.merge!({:_destroy => 1}) if exists and empty
-          return (!exists and empty)
+          attributes[:_destroy] = 1 if exists && empty
+          !exists && empty
+        end
+
+        def contacts_relations
+          ContactsRelations.new(self, contacts.to_a)
         end
       end
-
     end
-
-
   end
 end
 

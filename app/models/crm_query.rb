@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2017 RedmineUP
+# Copyright (C) 2010-2019 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -170,7 +170,6 @@ module CrmQuery
       end
     end if Redmine::VERSION.to_s >= '3.3'
 
-
     def principals
       return @principals if @principals
       @principals = []
@@ -201,7 +200,7 @@ module CrmQuery
     def object_count
       objects_scope.count
     rescue ::ActiveRecord::StatementInvalid => e
-      raise StatementInvalid.new(e.message)
+      raise Query::StatementInvalid.new(e.message)
     end
 
     def object_count_by_group
@@ -222,7 +221,7 @@ module CrmQuery
       end
       r
     rescue ::ActiveRecord::StatementInvalid => e
-      raise StatementInvalid.new(e.message)
+      raise Query::StatementInvalid.new(e.message)
     end
 
     def objects_scope(options={})
@@ -238,7 +237,7 @@ module CrmQuery
         limit(options[:limit]).
         offset(options[:offset])
     rescue ::ActiveRecord::StatementInvalid => e
-      raise StatementInvalid.new(e.message)
+      raise Query::StatementInvalid.new(e.message)
     end
   end
 end

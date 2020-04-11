@@ -1,8 +1,68 @@
 == Redmine CRM plugin changelog
 
 Redmine CRM plugin - customer relationship management plugin for redmine
-Copyright (C) 2010-2017 RedmineUP
+Copyright (C) 2010-2019 RedmineUP
 http://www.redmineup.com/
+
+== 2018-05-16 v4.2.5
+
+* Multiaddress results for select2 was added
+* Fixed contact email attachements
+* Fixed StatementInvalid namespace bug
+* Fixed company custom field filter bug
+
+== 2018-04-15 v4.2.4
+
+* Redmine 4.0.3 support
+* Fixed report csv bug
+* Fixed unchecked company bug
+* Fix deals field on issues edit form
+* Fixed CRM custom field bug
+* Fixed invoice custom field PDF export bug
+* Fixed error for Contact custom field on issue save
+* Fixed XSS injection
+* Fixed query roles visibility bug
+* Redmine consistency fixes
+
+== 2018-11-27 v4.2.3
+
+* Fixed grouped sorted queries bug
+* Fixed empty deal date bug
+* Fixed contact related projects duplication
+* Fixed contacts column pdf export
+
+== 2018-10-25 v4.2.2
+
+* Added Contact custom field type
+* Fixed bug with deal's product lines
+* New Redmine mail processing support
+* Rised limit of contacts in select2 to 30
+* Tags filter works by condition AND
+* Added date-field support for date inputs
+
+== 2018-08-02 v4.2.1
+
+* New deal selection control on issue page
+* New control for tags selection and filter
+* Deal price precision increased
+* Limit for deal name 255 symbols
+* Fixed bug with upload attachments without View deals permission
+* Fixed PG error on duplicates search
+
+== 2018-02-22 v4.1.2
+
+* Redmine 4.0 dev support
+* Select2 control issue's deal
+* New CSV export UI for Contacts
+* Deals layout fixes
+* Show contacts deals on a company profile
+* Avatar image on click action changed to show
+* Fixed contacts column output for issues table
+* Fixed deals pipeline bugs
+* Fixed bug with import_settings
+* Added missing assigned_to to Excel export
+* Email validator fixes
+* Duplications seach fixes
 
 == 2017-07-07 v4.1.1
 
@@ -30,7 +90,7 @@ http://www.redmineup.com/
 * Select2 control for selecting contacts and companies
 * Modal for adding contacts to deal
 * Fixed history log for done issue from contact page
-* Fixed delete confirmation message for contacts, deals and notes 
+* Fixed delete confirmation message for contacts, deals and notes
 * Serbian translations (Aleksandar Pavic)
 
 == 2017-02-07 v4.0.6

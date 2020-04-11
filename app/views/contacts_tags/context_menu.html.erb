@@ -1,10 +1,10 @@
 <ul>
   <% if @tag -%>
     <li><%= link_to l(:button_edit), edit_contacts_tag_path(@tag),
-            :class => 'icon-edit' %></li>
+            :class => 'icon icon-edit' %></li>
   <% else %>
     <li><%= link_to l(:label_crm_megre_tags), merge_contacts_tags_path(:ids => @tags.collect(&:id)),
-            :class => 'icon-merge' %></li>
+            :class => 'icon icon-merge' %></li>
   <% end %>
 
     <li><%= link_to l(:button_delete), contacts_tags_path(:ids => @tags.collect(&:id), :back_url => @back),

@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2017 RedmineUP
+# Copyright (C) 2010-2019 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -25,22 +25,21 @@ module RedmineContacts
 
         base.class_eval do
           unloadable
-          alias_method_chain :format_criteria_value, :contacts
+          alias_method :format_criteria_value_without_contacts, :format_criteria_value
+          alias_method :format_criteria_value, :format_criteria_value_with_contacts
         end
       end
-
 
       module InstanceMethods
-        def format_criteria_value_with_contacts(criteria_options, value)
-          if !value.blank? && criteria_options[:kclass] == Contact && obj = Contact.find_by_id(value.to_i)
+        def format_criteria_value_with_contacts(criteria_options, *value)
+          splatted_value = value.first
+          if splatted_value.present? && criteria_options[:kclass] == Contact && obj = Contact.find_by_id(splatted_value.to_i)
             obj.visible? ? obj.name : "#{l(:label_contact)} - ##{obj.id}"
           else
-            format_criteria_value_without_contacts(criteria_options, value)
+            format_criteria_value_without_contacts(criteria_options, *value)
           end
         end
-
       end
-
     end
   end
 end

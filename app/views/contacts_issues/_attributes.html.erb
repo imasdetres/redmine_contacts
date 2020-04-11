@@ -8,7 +8,7 @@
   <%= ff.select :assigned_to_id,  @project.assignable_users.collect {|m| [m.name, m.id]}, :selected =>  User.current.id, :include_blank => true %>
   </p>
   <%= label_tag 'due_date',  l(:field_due_date)%> <br>
-  <%= ff.text_field :due_date, :value => Date.today, :size => 12 %><%= calendar_for('issue_due_date') %><br>
+  <%= ff.text_field :due_date, :value => Date.today, :size => 12, :type => 'date' %><%= calendar_for('issue_due_date') %><br>
 
   <p>
   <%= label_tag :description,  l(:field_description)%> <br>

@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2017 RedmineUP
+# Copyright (C) 2010-2019 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -18,11 +18,10 @@
 # along with redmine_contacts.  If not, see <http://www.gnu.org/licenses/>.
 
 class CrmQueriesController < ApplicationController
-
-  before_filter :find_query_class
-  before_filter :find_query, :except => [:new, :create, :index]
-  before_filter :find_optional_project, :only => [:new, :create]
-  before_filter :set_menu_item
+  before_action :find_query_class
+  before_action :find_query, :except => [:new, :create, :index]
+  before_action :find_optional_project, :only => [:new, :create]
+  before_action :set_menu_item
 
   accept_api_auth :index
 
@@ -52,17 +51,14 @@ class CrmQueriesController < ApplicationController
     @query = @query_class.new
     @query.user = User.current
     @query.project = @project
-    @query.visibility = @query_class::VISIBILITY_PRIVATE unless User.current.allowed_to?("manage_public_#{@object_type}s_queries".to_sym, @project) || User.current.admin?
-    @query.build_from_params(params)
+    update_query_from_params
   end
 
   def create
-    @query = @query_class.new(params[:query])
+    @query = @query_class.new
     @query.user = User.current
     @query.project = params[:query_is_for_all] ? nil : @project
-    @query.visibility = @query_class::VISIBILITY_PRIVATE unless User.current.allowed_to?("manage_public_#{@object_type}s_queries".to_sym, @project) || User.current.admin?
-    @query.build_from_params(params)
-    @query.column_names = nil if params[:default_columns]
+    update_query_from_params
 
     if @query.save
       flash[:notice] = l(:notice_successful_create)
@@ -76,11 +72,8 @@ class CrmQueriesController < ApplicationController
   end
 
   def update
-    @query.attributes = params[:query]
     @query.project = nil if params[:query_is_for_all]
-    @query.visibility = @query_class::VISIBILITY_PRIVATE unless User.current.allowed_to?("manage_public_#{@object_type}s_queries".to_sym, @project) || User.current.admin?
-    @query.build_from_params(params)
-    @query.column_names = nil if params[:default_columns]
+    update_query_from_params
 
     if @query.save
       flash[:notice] = l(:notice_successful_update)
@@ -95,7 +88,8 @@ class CrmQueriesController < ApplicationController
     redirect_to_list(:set_filter => 1)
   end
 
-private
+  private
+
   def find_query_class
     raise NameError if params[:object_type].blank?
     @query_class = Object.const_get("#{params[:object_type].to_s.camelcase}Query")
@@ -126,5 +120,23 @@ private
 
   def set_menu_item
     menu_items[:project_tabs][:actions][action_name.to_sym] = "#{@object_type}s"
+  end
+
+  def update_query_from_params
+    return if params[:query].blank? && params[:c].blank?
+
+    query_params = params[:query].present? ? params[:query] : params
+
+    @query.build_from_params(params)
+    @query.name = query_params[:name]
+    @query.is_public = query_params[:is_public] if query_params[:is_public]
+    @query.column_names = nil if query_params[:default_columns]
+    @query.sort_criteria = query_params[:sort_criteria] || @query.sort_criteria
+    if User.current.allowed_to?("manage_public_#{@object_type}s_queries".to_sym, @project) || User.current.admin?
+      @query.visibility = query_params[:visibility] if query_params[:visibility]
+      @query.role_ids = query_params[:role_ids] if query_params[:role_ids]
+    else
+      @query_class::VISIBILITY_PRIVATE
+    end
   end
 end

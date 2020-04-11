@@ -49,7 +49,6 @@ END_DESC
         plugin_settings[setting] = value
         Setting[plugin_name.to_sym] = plugin_settings
       end
-
     end
 
     desc <<-END_DESC
@@ -62,8 +61,16 @@ END_DESC
       DealStatus.create(:name  => l(:label_deal_status_lost), :status_type => DealStatus::LOST_STATUS, :is_default => false, :color => "FF0000".hex)
     end
 
+    desc <<-END_DESC
+Remove duplicated contact project links
+END_DESC
 
-
-
+    task :remove_duplicated_project_links => :environment do
+      Contact.joins(:projects).find_each do |contact|
+        uniq_projects = contact.projects.uniq
+        contact.projects = []
+        contact.projects = uniq_projects
+      end
+    end
   end
 end

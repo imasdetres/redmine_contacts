@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2017 RedmineUP
+# Copyright (C) 2010-2019 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -19,13 +19,20 @@
 
 module RedmineContacts
   module Patches
-
     module MailerPatch
+      def self.included(receiver)
+        receiver.extend         ClassMethods
+        receiver.send :include, InstanceMethods
+        receiver.class_eval do
+          unloadable
+        end
+      end
+
       module ClassMethods
       end
 
       module InstanceMethods
-        def crm_note_add(note)
+        def crm_note_add(_user, note)
           redmine_headers 'Project' => note.source.project.identifier,
                           'X-Notable-Id' => note.source.id,
                           'X-Note-Id' => note.id
@@ -38,10 +45,9 @@ module RedmineContacts
           mail :to => recipients,
                :cc => cc,
                :subject => "[#{note.source.project.name}] - #{l(:label_crm_note_for)} #{note.source.name}"
-
         end
 
-        def crm_contact_add(contact)
+        def crm_contact_add(_user, contact)
           redmine_headers 'Project' => contact.project.identifier,
                           'X-Contact-Id' => contact.id
           @author = contact.author
@@ -53,38 +59,9 @@ module RedmineContacts
           mail :to => recipients,
                :cc => cc,
                :subject => "[#{contact.project.name} - #{l(:label_contact)} ##{contact.id}] #{contact.name}"
-
-        end
-
-        def crm_issue_connected(issue, contact)
-          redmine_headers 'X-Project' => contact.project.identifier,
-                          'X-Issue-Id' => issue.id,
-                          'X-Contact-Id' => contact.id
-          message_id contact
-          recipients contact.watcher_recipients
-          subject "[#{contact.projects.first.name}] - #{l(:label_issue_for)} #{contact.name}"
-
-          body :contact => contact,
-               :issue => issue,
-               :contact_url => url_for(:controller => contact.class.name.pluralize.downcase, :action => 'show', :project_id => contact.project, :id => contact.id),
-               :issue_url => url_for(:controller => "issues", :action => "show", :id => issue)
-          render_multipart('issue_connected', body)
-        end
-
-      end
-
-      def self.included(receiver)
-        receiver.extend         ClassMethods
-        receiver.send :include, InstanceMethods
-        receiver.class_eval do
-          unloadable
-          # TODO: Удалено из-за несовместимости, может быть косяк с шаблонами для майлера
-          # self.instance_variable_get("@inheritable_attributes")[:view_paths] << RAILS_ROOT + "/vendor/plugins/redmine_contacts/app/views"
         end
       end
-
     end
-
   end
 end
 

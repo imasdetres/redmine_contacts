@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2017 RedmineUP
+# Copyright (C) 2010-2019 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -30,10 +30,12 @@ module RedmineContacts
       end
 
       module InstanceMethods
+        DEFAULT_LIMIT = 10
+        DEFAULT_CONTACTS_LIMIT = 30
 
         def contact_tags
           @name = params[:q].to_s
-          @tags = Contact.available_tags :name_like => @name, :limit => 10
+          @tags = Contact.available_tags :name_like => @name, limit: DEFAULT_LIMIT
           render :layout => false, :partial => 'crm_tag_list'
         end
 
@@ -48,13 +50,14 @@ module RedmineContacts
           @contacts = []
           q = (params[:q] || params[:term]).to_s.strip
           scope = Contact.includes(:avatar).where({})
-          scope = scope.limit(params[:limit] || 10)
+          scope = scope.limit(params[:limit] || DEFAULT_CONTACTS_LIMIT)
           scope = scope.companies if params[:is_company]
-          scope = scope.joins(:projects).uniq.where(Contact.visible_condition(User.current))
-          q.split(' ').collect{ |search_string| scope = scope.live_search(search_string) } unless q.blank?
+          scope = scope.joins(:projects).where(Contact.visible_condition(User.current))
+          scope = Rails.version >= '5.1' ? scope.distinct : scope.uniq
+          q.split(' ').collect { |search_string| scope = scope.live_search(search_string.gsub(/[\(\)]/, '')) } unless q.blank?
           scope = scope.by_project(@project) if @project
-          @contacts = scope.to_a.sort!{|x, y| x.name <=> y.name }
-          render :layout => false, :partial => 'contacts'
+          @contacts = scope.to_a.sort! { |x, y| x.name <=> y.name }
+          render layout: false, partial: params[:multiaddress] ? 'multiaddress_contacts' : 'contacts'
         end
 
         def companies
@@ -62,7 +65,7 @@ module RedmineContacts
           q = (params[:q] || params[:term]).to_s.strip
           if q.present?
             scope = Contact.joins(:projects).where({})
-            scope = scope.limit(params[:limit] || 10)
+            scope = scope.limit(params[:limit] || DEFAULT_CONTACTS_LIMIT)
             scope = scope.includes(:avatar)
             scope = scope.by_project(@project) if @project
             scope = scope.where('LOWER(first_name) LIKE LOWER(?)', "#{q}%") unless q.blank?
@@ -70,7 +73,6 @@ module RedmineContacts
           end
           render :layout => false, :partial => 'companies'
         end
-
       end
     end
   end

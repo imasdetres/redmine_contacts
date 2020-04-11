@@ -57,3 +57,16 @@ deal_005:
     status_id: 2
     price: 25500
     currency: "RUB"
+
+deal_006:
+  id: 6
+  name: 10First deal with contacts
+  contact_id: 1
+  category_id: 1
+  project_id: 1
+  background: Test deal
+  author_id: 1
+  status_id: 1
+  assigned_to_id: 1
+  due_date: "<%= Time.now.to_s(:db) %>"
+  price: 3000

@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2017 RedmineUP
+# Copyright (C) 2010-2019 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -22,9 +22,8 @@ module RedmineContacts
     include Redmine::I18n
 
     class << self
-
       def csv_custom_value(custom_value)
-        return "" unless custom_value
+        return '' unless custom_value
         value = custom_value.value
         case custom_value.custom_field.field_format
         when 'date'
@@ -32,7 +31,9 @@ module RedmineContacts
         when 'bool'
           l(value == "1" ? :general_text_Yes : :general_text_No)
         when 'float'
-          sprintf("%.2f", value).gsub('.', l(:general_csv_decimal_separator))
+          sprintf('%.2f', value).gsub('.', l(:general_csv_decimal_separator))
+        when 'contact', 'company'
+          Contact.where(id: value).first.to_s
         else
           if value.is_a?(Array)
             value.map(&:to_s).join(', ')
@@ -41,9 +42,8 @@ module RedmineContacts
           end
         end
       rescue
-        return ""
+        ''
       end
-
     end
   end
 end

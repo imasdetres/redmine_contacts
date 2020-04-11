@@ -19,9 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with redmine_contacts.  If not, see <http://www.gnu.org/licenses/>.
 
-require File.expand_path('../../test_helper', __FILE__)
+require File.expand_path(File.dirname(__FILE__) + '/../../test_helper')
 
-class WikiControllerTest < ActionController::TestCase
+class Redmine::ApiTest::IssuesTest < ActiveRecord::VERSION::MAJOR >= 4 ? Redmine::ApiTest::Base : ActionController::IntegrationTest
   fixtures :projects,
            :users,
            :roles,
@@ -29,8 +29,6 @@ class WikiControllerTest < ActionController::TestCase
            :member_roles,
            :issues,
            :issue_statuses,
-           :roles,
-           :enabled_modules,
            :versions,
            :trackers,
            :projects_trackers,
@@ -38,7 +36,6 @@ class WikiControllerTest < ActionController::TestCase
            :enabled_modules,
            :enumerations,
            :attachments,
-           :wikis,
            :workflows,
            :custom_fields,
            :custom_values,
@@ -59,45 +56,7 @@ class WikiControllerTest < ActionController::TestCase
                                                                                                                     :queries])
 
   def setup
+    Setting.rest_api_enabled = '1'
     RedmineContacts::TestCase.prepare
-    EnabledModule.create(:project_id => 1, :name => 'wiki')
-    @project = Project.find(1)
-    @wiki = @project.wiki
-    @page_name = 'contact_macro_test'
-    @page = @wiki.find_or_new_page(@page_name)
-    @page.content = WikiContent.new
-    @page.content.text = 'test'
-    @page.content.author = User.find(1)
-    @page.save!
-  end
-
-  def test_show_with_contact_macro
-    @request.session[:user_id] = 1
-    @page.content.text = '{{contact(1)}}'
-    @page.content.save!
-    compatible_request :get, :show, :project_id => 1, :id => @page_name
-    assert_response :success
-    assert_select 'h3', 'Wiki'
-    assert_select 'div.wiki p', /Ivan Ivanov/
-  end
-
-  def test_show_with_contact_avatar_macro
-    @request.session[:user_id] = 1
-    @page.content.text = '{{contact_avatar(1)}}'
-    @page.content.save!
-    compatible_request :get, :show, :project_id => 1, :id => @page_name
-    assert_response :success
-    assert_select 'h3', 'Wiki'
-    assert_select 'div.wiki p img'
-  end
-
-  def test_show_with_note_macro
-    @request.session[:user_id] = 1
-    @page.content.text = '{{contact_note(1)}}'
-    @page.content.save!
-    compatible_request :get, :show, :project_id => 1, :id => @page_name
-    assert_response :success
-    assert_select 'h3', 'Wiki'
-    assert_select 'div.wiki p', /Note 1 content with wiki syntax/
   end
 end
