@@ -3,7 +3,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -28,6 +28,8 @@ class ContactsProjectsControllerTest < ActionController::TestCase
            :members,
            :member_roles,
            :versions,
+           :issues,
+           :issue_statuses,
            :trackers,
            :projects_trackers,
            :enabled_modules,
@@ -38,7 +40,6 @@ class ContactsProjectsControllerTest < ActionController::TestCase
 
   RedmineContacts::TestCase.create_fixtures(Redmine::Plugin.find(:redmine_contacts).directory + '/test/fixtures/', [:contacts,
                                                                                                                     :contacts_projects,
-                                                                                                                    :contacts_issues,
                                                                                                                     :deals,
                                                                                                                     :notes,
                                                                                                                     :tags,
@@ -88,12 +89,12 @@ class ContactsProjectsControllerTest < ActionController::TestCase
   def test_double_create
     @request.session[:user_id] = 1
 
-    compatible_xhr_request :post, :create, :project_id => 'ecookbook', :id => 2, :contact_id => 2
+    compatible_xhr_request :post, :create, :project_id => 'onlinestore', :id => 2, :contact_id => 2
     assert_response :success
     contact = Contact.find(2)
     assert_equal [1, 2], contact.project_ids
 
-    compatible_xhr_request :post, :create, :project_id => 'ecookbook', :id => 2, :contact_id => 2
+    compatible_xhr_request :post, :create, :project_id => 'onlinestore', :id => 2, :contact_id => 2
     assert_response :success
     contact = Contact.find(2)
     assert_equal [1, 2], contact.project_ids

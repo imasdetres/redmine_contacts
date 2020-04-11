@@ -45,6 +45,12 @@ api.array :contacts, api_meta(:total_count => @contacts_count, :offset => @offse
 
 	  api.tag_list contact.tag_list
 
+    api.array :projects do
+      contact.projects.each do |project|
+        api.project(:id => project.id,  :name => project.name)
+      end
+    end if include_in_api_response?('projects')
+
 	  api.created_on contact.created_on
 	  api.updated_on contact.updated_on
     end

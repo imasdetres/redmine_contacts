@@ -3,7 +3,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -22,7 +22,6 @@
 require File.expand_path('../../test_helper', __FILE__)
 
 class ContactsIssuesTest < ActiveSupport::TestCase
-  fixtures :contacts_issues
 
   # Replace this with your real tests.
   def test_truth

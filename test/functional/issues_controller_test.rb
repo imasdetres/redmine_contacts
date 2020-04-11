@@ -3,7 +3,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -48,8 +48,6 @@ class IssuesControllerTest < ActionController::TestCase
 
   RedmineContacts::TestCase.create_fixtures(Redmine::Plugin.find(:redmine_contacts).directory + '/test/fixtures/', [:contacts,
                                                                                                                     :contacts_projects,
-                                                                                                                    :contacts_issues,
-                                                                                                                    :deals_issues,
                                                                                                                     :deals,
                                                                                                                     :notes,
                                                                                                                     :tags,
@@ -60,11 +58,24 @@ class IssuesControllerTest < ActionController::TestCase
     RedmineContacts::TestCase.prepare
     User.current = nil
     @request.session[:user_id] = 1
-  end
 
-  def test_get_show_issue_with_deal_and_contacts
-    compatible_request :get, :show, :id => 1
-    assert_response :success
-    assert_select '#issue_contacts span.contact a', /Marat Aminov/
+    issue = Issue.find(1)
+    contact = Contact.find(2)
+    deal = Deal.find(1)
+    @contact_cf = IssueCustomField.create!(name: 'Related contacts',
+                                           field_format: 'contact',
+                                           is_filter: true,
+                                           is_for_all: true,
+                                           multiple: true,
+                                           tracker_ids: Tracker.pluck(:id))
+    @deal_cf = IssueCustomField.create!(name: 'Related deals',
+                                        field_format: 'deal',
+                                        is_filter: true,
+                                        is_for_all: true,
+                                        multiple: true,
+                                        tracker_ids: Tracker.pluck(:id))
+
+    CustomValue.create!(custom_field: @contact_cf, customized: issue, value: contact.id)
+    CustomValue.create!(custom_field: @deal_cf, customized: issue, value: deal.id)
   end
 end

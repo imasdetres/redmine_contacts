@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -27,11 +27,16 @@ module RedmineContacts
         base.send(:include, InstanceMethods)
         base.class_eval do
           unloadable # Send unloadable so it will not be unloaded in development
-          has_and_belongs_to_many :contacts, :uniq => true
         end
       end
 
       class ContactsRelations < IssueRelation::Relations
+        def to_s(*args)
+          map(&:to_s).join(", ")
+        end
+      end
+
+      class DealsRelations < IssueRelation::Relations
         def to_s(*args)
           map(&:to_s).join(", ")
         end
@@ -45,8 +50,26 @@ module RedmineContacts
           !exists && empty
         end
 
+        def related_custom_objects(klass)
+          conditions = "#{CustomField.table_name}.type = 'IssueCustomField' AND #{CustomField.table_name}.field_format = '#{klass.to_s.downcase}'"
+          conditions += id ? " AND #{CustomValue.table_name}.customized_id = #{id}" : " AND 1=0"
+          klass.where(id: CustomValue.joins(:custom_field).where(conditions).pluck(:value).uniq)
+        end
+
         def contacts_relations
-          ContactsRelations.new(self, contacts.to_a)
+          ContactsRelations.new(self, related_custom_objects(Contact).to_a)
+        end
+
+        def deas_relations
+          DealsRelations.new(self, related_custom_objects(Deal).to_a)
+        end
+
+        def contacts
+          related_custom_objects(Contact)
+        end
+
+        def deals
+          related_custom_objects(Deal)
         end
       end
     end

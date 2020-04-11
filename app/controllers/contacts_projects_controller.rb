@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -39,7 +39,9 @@ class ContactsProjectsController < ApplicationController
   end
 
   def create
-    @contact.projects << @related_project unless @contact.projects.include?(@related_project)
+    Project.where(identifier: (params[:project] && params[:project][:id]) || params[:project_id] ).find_each do |project|
+      @contact.projects << project unless @contact.projects.include?(project)
+    end
     if @contact.save
       respond_to do |format|
         format.html { redirect_to :back }

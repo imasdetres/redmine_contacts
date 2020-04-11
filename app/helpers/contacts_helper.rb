@@ -3,7 +3,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -31,7 +31,6 @@ module ContactsHelper
   def settings_contacts_tabs
     ret = [
       {:name => 'general', :partial => 'settings/contacts/contacts_general', :label => :label_general},
-      {:name => 'money', :partial => 'settings/contacts/money', :label => :label_crm_money_settings},
     ]
     ret.push({:name => 'hidden', :partial => 'settings/contacts/contacts_hidden', :label => :label_crm_contacts_hidden}) if params[:hidden]
     ret

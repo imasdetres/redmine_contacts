@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -17,11 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with redmine_contacts.  If not, see <http://www.gnu.org/licenses/>.
 
-requires_redmine_crm :version_or_higher => '0.0.43' rescue raise "\n\033[31mRedmine requires newer redmine_crm gem version.\nPlease update with 'bundle update redmine_crm'.\033[0m"
+requires_redmine_crm :version_or_higher => '0.0.53' rescue raise "\n\033[31mRedmine requires newer redmine_crm gem version.\nPlease update with 'bundle update redmine_crm'.\033[0m"
 
 require 'redmine'
 
-CONTACTS_VERSION_NUMBER = '4.2.5'
+CONTACTS_VERSION_NUMBER = '4.3.0'
 CONTACTS_VERSION_TYPE = "Light version"
 
 if ActiveRecord::VERSION::MAJOR >= 4
@@ -72,7 +72,7 @@ Redmine::Plugin.register :redmine_contacts do
     }
 
     permission :manage_contact_issue_relations, {
-      :contacts_issues => [:new, :create_issue, :create, :delete, :close, :autocomplete_for_contact],
+      :contacts_issues => [:close],
     }
 
     permission :delete_contacts, :contacts => [:destroy, :bulk_destroy]
@@ -113,3 +113,6 @@ Redmine::Plugin.register :redmine_contacts do
 end
 
 require 'redmine_contacts'
+
+RedmineCrm::Settings.initialize_gem_settings
+RedmineCrm::Currency.add_admin_money_menu

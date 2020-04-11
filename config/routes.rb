@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -56,8 +56,6 @@
       get :context_menu, :merge
     end
   end
-
-  match 'projects/:project_id/contacts/:contact_id/new_task' => 'contacts_issues#new', :via => :post
 
   match 'contacts/:contact_id/duplicates' => 'contacts_duplicates#index', :via => [:get, :post]
 

@@ -3,7 +3,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -50,7 +50,6 @@ class MailerPatchTest < ActiveSupport::TestCase
 
   RedmineContacts::TestCase.create_fixtures(Redmine::Plugin.find(:redmine_contacts).directory + '/test/fixtures/', [:contacts,
                                                                                                                     :contacts_projects,
-                                                                                                                    :contacts_issues,
                                                                                                                     :deal_processes,
                                                                                                                     :deals,
                                                                                                                     :notes,

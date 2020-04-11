@@ -1,5 +1,6 @@
 <%= raw @contacts.inject([]) { |collector, contact|
-    collector + contact.emails.map { |email|
+    contact_emails = contact.emails.empty? ? [' '] : contact.emails
+    collector + contact_emails.map { |email|
                                      {
                                        'id' => email,
                                        'text' => contact.name_with_company,

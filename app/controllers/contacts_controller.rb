@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -113,7 +113,7 @@ class ContactsController < ApplicationController
     find_contact_issues
     respond_to do |format|
       format.js if request.xhr?
-      format.html { @contact.viewed }
+      format.html
       format.api
       format.atom { render_feed(@notes, :title => "#{@contact.name || Setting.app_title}: #{l(:label_crm_note_plural)}") }
       format.vcf { send_data(contact_to_vcard(@contact), :filename => "#{@contact.name}.vcf", :type => 'text/x-vcard;', :disposition => 'attachment') }
@@ -236,10 +236,10 @@ class ContactsController < ApplicationController
   private
 
   def find_contact_issues
-    scope = @contact.issues
+    scope = @contact.related_issues
     scope = scope.open unless RedmineContacts.settings[:show_closed_issues]
-    @contact_issues_count = scope.visible.count
-    @contact_issues = scope.visible.order("#{Issue.table_name}.status_id, #{Issue.table_name}.updated_on DESC").limit(10)
+    @contact_issues_count = scope.count
+    @contact_issues = scope.order("#{Issue.table_name}.status_id, #{Issue.table_name}.updated_on DESC").limit(10)
   end
 
   def remove_old_avatars

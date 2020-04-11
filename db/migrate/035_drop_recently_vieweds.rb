@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -17,14 +17,21 @@
 # You should have received a copy of the GNU General Public License
 # along with redmine_contacts.  If not, see <http://www.gnu.org/licenses/>.
 
-$LOAD_PATH.unshift(File.dirname(__FILE__))
+class DropRecentlyVieweds < Rails.version < '5.1' ? ActiveRecord::Migration : ActiveRecord::Migration[4.2]
+  def self.up
+    drop_table :recently_vieweds
+  end
 
-require "lib/acts_as_viewable"
+  def self.down
+    create_table :recently_vieweds do |t|
+      t.references :viewer
+      t.references :viewed, :polymorphic => true
+      t.column :views_count, :integer
+      t.timestamps :null => false
+    end
 
-$LOAD_PATH.shift
+    add_index :recently_vieweds, [:viewed_id, :viewed_type]
+    add_index :recently_vieweds, :viewer_id
 
-# Rails.configuration.to_prepare do
-#   unless ActiveRecord::Base.included_modules.include?(ActsAsViewable::Viewable)
-ActiveRecord::Base.send(:include, ActsAsViewable::Viewable)
-#   end
-# end
+  end
+end

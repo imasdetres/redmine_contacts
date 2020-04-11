@@ -6,6 +6,7 @@ $('select#<%= field_id %>')
          .attr("selected",'selected')
          .text('<%= @contact.name %>'));
 $('input#<%= field_id %>').val('<%= @contact.id %>');
+$('.additional-contact-id').val('<%= @contact.id %>');
 $('#<%= field_id %>_selected_contact').text('<%= @contact.name %>');
 $('#<%= field_id %>_selected_contact').show();
 $('#<%= field_id %>_selected_contact').scrollTop( 0 );

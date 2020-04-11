@@ -41,7 +41,6 @@
 <% end %>
 
 <% content_for :sidebar do %>
-  <%= render :partial => 'common/sidebar' %>
   <h3><%= l(:label_crm_note_plural) %></h3>
   <div id="note_types">
     <% collection_for_note_types_select.each do |note_type| %>
@@ -54,10 +53,8 @@
   <div id="tags">
     <span class="tag_list"><%= @tags.map{|tag| content_tag(:span, link_to(tag.name, {:controller => "contacts", :action => "contacts_notes", :project_id => @project, :tag => tag.name}), {}.merge(ContactsSetting.monochrome_tags? ? {:class => "tag-label"} : {:class => "tag-label-color", :style => "background-color: #{tag_color(tag.name)}"}))}.join(' ').html_safe %></span>
   </div>
-  <%= render :partial => 'common/recently_viewed' %>
 <% end %>
 
 <% content_for(:header_tags) do %>
   <%= javascript_include_tag :contacts, :plugin => 'redmine_contacts'  %>
-  <%= stylesheet_link_tag :contacts_sidebar, :plugin => 'redmine_contacts' %>
 <% end %>

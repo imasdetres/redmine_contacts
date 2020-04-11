@@ -11,22 +11,22 @@ ru:
   label_crm_company: Компания
   label_contact_plural: Контакты
   label_crm_contact_edit_information: Редактировать информацию по контакту
-  label_crm_edit_tags: Редактировать тэги
+  label_crm_edit_tags: Редактировать теги
   label_crm_contact_view: Просмотр
   label_crm_contact_list: Список
   label_crm_contact_new: Новый контакт
   label_crm_at_company: в
   label_crm_last_notes: Последние заметки
-  label_crm_tags_plural: Тэги
-  label_crm_multi_tags_plural: Выбор нескольких тэгов
-  label_crm_single_tag_mode: Один тэг
-  label_crm_multiple_tags_mode: Несколько тэгов
-  label_crm_contact_tag: Тэг
+  label_crm_tags_plural: Тeги
+  label_crm_multi_tags_plural: Выбор нескольких тегов
+  label_crm_single_tag_mode: Один тег
+  label_crm_multiple_tags_mode: Несколько тегов
+  label_crm_contact_tag: Тeг
   label_crm_time_ago: назад
   label_crm_add_note_plural: Добавить заметку
   label_crm_note_plural: Заметки
 
-  label_crm_add_tags_rule: несколько тэгов через зяпятую
+  label_crm_add_tags_rule: несколько тегов через зяпятую
   label_crm_contact_search: Поиск по имени
   label_crm_note_for: Заметка для
   label_crm_show_on_map: Показать на карте
@@ -41,7 +41,7 @@ ru:
   label_crm_merge_duplicate_plural: Объединить
   label_crm_duplicate_plural: Вероятные дубликаты
   label_crm_duplicate_for_plural: Вероятные дубликаты для
-  label_crm_add_tag: + добавить тэг
+  label_crm_add_tag: + добавить тег
 
   label_crm_note_show_extras: Дополнительно (тип, дата, файлы)
   label_crm_note_hide_extras: Скрыть параметры
@@ -90,7 +90,7 @@ ru:
   field_contact_skype: Skype
   field_contact_background: Дополнительная информация
   field_contact_status: Статус
-  field_contact_tag_names: Тэги
+  field_contact_tag_names: Тeги
   field_first_name: Имя
   field_last_name: Фамилия
   field_company: Компания
@@ -107,7 +107,7 @@ ru:
   notice_unsuccessful_save: Невозможно сохранить
   notice_successful_merged: Объединение успешно завершено
 
-  notice_merged_warning: Все привязанные проекты, заметки, тэги и задачи этого контакта будут перенесены в выбранный в списке внизу, а этот контакт будет удален.
+  notice_merged_warning: Все привязанные проекты, заметки, теги и задачи этого контакта будут перенесены в выбранный в списке внизу, а этот контакт будет удален.
 
   project_module_contacts: Контакты
 
@@ -149,8 +149,8 @@ ru:
   label_crm_bulk_edit_selected_contacts: Редактировать все выбранные контакты
   label_crm_bulk_edit_selected_deals: Редактировать все выбранные сделки
   label_crm_bulk_send_mail_selected_contacts: Отправить письмо выбранным контактам
-  field_add_tags: Добавить тэги
-  field_delete_tags: Снять тэги
+  field_add_tags: Добавить теги
+  field_delete_tags: Снять теги
   label_crm_send_mail: Отправить письмо
   error_empty_email: Email не может быть пустым
   permission_send_contacts_mail: Отправлять письма
@@ -212,7 +212,7 @@ ru:
   field_address: Адрес
   field_phone: Телефон
   field_email: Email
-  field_tags: Тэги
+  field_tags: Тeги
   field_is_company: Является компанией
   field_contact_full_name: Полное имя
   field_last_note: Последняя заметка
@@ -591,8 +591,11 @@ ru:
   label_crm_light_free_version: CRM бесплатная версия
   label_crm_link_to_pro: Обновление до PRO
   label_crm_link_to_pro_demo: Онлайн демо PRO
-  label_crm_link_to_more_plugins: Другие плагины RedmineCRM
+  label_crm_link_to_more_plugins: Другие плагины RedmineUP
 
   text_crm_string_incorrect_format: имеет неправильный формат
 
   label_deal_items: Объекты сделки
+  button_duplicate: Дублировать
+
+  label_crm_related_issues: Связанные задачи

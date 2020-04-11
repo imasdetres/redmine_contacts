@@ -27,7 +27,6 @@ rm -r plugins/redmine_contacts
 * notes
 * tags
 * taggings
-* recently_vieweds
 * contacts_settings
 * contacts_queries
 * addresses

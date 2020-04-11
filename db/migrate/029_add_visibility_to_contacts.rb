@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -29,7 +29,7 @@ class AddVisibilityToContacts < Rails.version < '5.1' ? ActiveRecord::Migration 
     ContactsSetting.all.each do |setting|
       setting.value = YAML::load(setting.value.respond_to?(:force_encoding) ? setting.value.force_encoding('utf-8') : setting.value) if setting.value.is_a?(String) rescue  ''
       setting.save!
-    end
+    end if ContactsSetting.respond_to?(:all)
   end
 
   def down

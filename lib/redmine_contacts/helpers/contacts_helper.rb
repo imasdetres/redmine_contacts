@@ -3,7 +3,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -88,21 +88,24 @@ module RedmineContacts
       l(:label_crm_countries).map { |k, v| [v, k.to_s] }.sort
     end
 
-    def select_contact_tag(name, contact, options = {})
+    def select_contact_tag(name, contacts, options = {})
       cross_project_contacts = ContactsSetting.cross_project_contacts? || !!options.delete(:cross_project_contacts)
+      contacts = [contacts] unless contacts.is_a?(Array)
 
       s = select2_tag(
         name,
-        options_for_select([[contact.try(:name_with_company), contact.try(:id)]], contact.try(:id)),
+        options_for_select(contacts.map{ |c| [c.try(:name_with_company), c.try(:id)] }, contacts.map{ |c| c.try(:id) }),
         url: auto_complete_contacts_path(project_id: (cross_project_contacts ? nil : @project), is_company: (options[:is_company] ? '1' : nil), multiaddress: options[:multiaddress]),
         placeholder: '',
+        multiple: !!options[:multiple],
+        containerCssClass: options[:class] || 'icon icon-contact',
         style: 'width: 60%;',
         include_blank: true,
         format_state: (options[:multiaddress] ? 'formatStateWithMultiaddress' : 'formatStateWithAvatar'),
         allow_clear: !!options[:include_blank]
       )
 
-      if options[:add_contact] && @project.persisted?
+      if options[:add_contact] && @project.try(:persisted?)
         if authorize_for('contacts', 'new')
           s << link_to(
             image_tag('add.png', style: 'vertical-align: middle; margin-left: 5px;'),
@@ -118,6 +121,23 @@ module RedmineContacts
         s << javascript_include_tag('attachments')
       end
 
+      s.html_safe
+    end
+
+    def select_deals_tag(name, deals, options = {})
+      deals ||= []
+      s = select2_tag(
+        name,
+        options_for_select(deals.map{ |deal| [deal.name, deal.id] }, deals.map(&:id)),
+        url: auto_complete_deals_path(project_id: @project),
+        placeholder: '',
+        multiple: !!options[:multiple],
+        containerCssClass: options[:class] || '',
+        style: 'width: 60%;',
+        include_blank: true,
+        format_state: 'formatStateWithAvatar',
+        allow_clear: true
+      )
       s.html_safe
     end
 

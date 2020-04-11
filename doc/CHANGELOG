@@ -1,17 +1,40 @@
 == Redmine CRM plugin changelog
 
 Redmine CRM plugin - customer relationship management plugin for redmine
-Copyright (C) 2010-2019 RedmineUP
+Copyright (C) 2010-2020 RedmineUP
 http://www.redmineup.com/
 
-== 2018-05-16 v4.2.5
+== 2020-02-31 v4.3.0
+
+* Contacts and Deals relations move to Custom fields
+* Fixed settings save bug
+* Fixed bug with contacts list display
+* Fixed deal export bug
+
+== 2020-02-31 v4.2.7
+
+* Fixed settings bug 
+* Fixed select2 styles
+
+== 2019-12-20 v4.2.6
+
+* Redmine 4.1 styles support
+* Removed contacts settings table
+* Fixed Duplicate button locale
+* Fixed gmail connect bug
+* Fixed responsible bug
+* Fixed live search missed fields bug
+* Fixed helpdesk forms bug on change issue params
+* Fixed new issue without project bug
+
+== 2019-05-16 v4.2.5
 
 * Multiaddress results for select2 was added
 * Fixed contact email attachements
 * Fixed StatementInvalid namespace bug
 * Fixed company custom field filter bug
 
-== 2018-04-15 v4.2.4
+== 2019-04-15 v4.2.4
 
 * Redmine 4.0.3 support
 * Fixed report csv bug

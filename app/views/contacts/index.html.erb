@@ -4,9 +4,7 @@
     <%= call_hook(:view_contacts_action_menu) %>
 </div>
 
-
 <% html_title(@query.new_record? ? l(:label_contact_plural) : @query.name) %>
-
 
 <%= form_tag({ :controller => 'contacts', :action => 'index', :project_id => @project }, :method => :get, :id => 'query_form') do %>
     <script type="text/javascript">
@@ -17,10 +15,12 @@
             var url = form.attr("action");
             form.find('[name="c[]"] option').each(function(i, elem){
               $(elem).attr('selected', true)
+              $(elem).prop('selected', true)
             })
             var formData = form.serialize();
             form.find('[name="c[]"] option').each(function(i, elem){
               $(elem).attr('selected', false)
+              $(elem).prop('selected', false)
             })
             $.get(url, formData, function(data) { // perform an AJAX get, the trailing function is what happens on successful get.
                 $("#contact_list").html(data); // replace the "results" div with the result of action taken
@@ -47,7 +47,6 @@
 
     <%= hidden_field_tag 'set_filter', '1' %>
     <%= hidden_field_tag 'object_type', 'contact' %>
-
 <% end %>
 
 <%= error_messages_for 'query' %>
@@ -71,10 +70,8 @@
      
       <%= render :partial => 'upgrade_to_pro' %>
      
-    <%= render :partial => 'common/sidebar' %>
     <%= render :partial => 'tags_cloud', :object => @tags %>
     <%= render :partial => 'notes/last_notes', :object => @last_notes %>
-    <%= render :partial => 'common/recently_viewed' %>
 
     <%= call_hook(:view_contacts_sidebar_contacts_list_bottom) %>
 
@@ -82,7 +79,6 @@
 
 <% content_for(:header_tags) do %>
     <%= javascript_include_tag :contacts, :plugin => 'redmine_contacts'  %>
-    <%= stylesheet_link_tag :contacts_sidebar, :plugin => 'redmine_contacts' %>
     <%= auto_discovery_link_tag(:atom, {:format => 'atom', :key => User.current.rss_key}, :title => l(:label_contact_plural)) %>
 
 <% end %>

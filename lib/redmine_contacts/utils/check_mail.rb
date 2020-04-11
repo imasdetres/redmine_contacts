@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -30,10 +30,12 @@ module RedmineContacts
         host = imap_options[:host] || '127.0.0.1'
         port = imap_options[:port] || '143'
         ssl = !imap_options[:ssl].nil?
+        ssl_certs = imap_options[:ssl_certs]
+        verify_ssl = imap_options[:verify_ssl].nil? ? true : imap_options[:verify_ssl]
         folder = imap_options[:folder] || 'INBOX'
 
         Timeout::timeout(15) do
-          @imap = Net::IMAP.new(host, port, ssl)
+          @imap = Net::IMAP.new(host, port, ssl, ssl_certs, verify_ssl)
           @imap.login(imap_options[:username], imap_options[:password]) unless imap_options[:username].nil?
         end
 

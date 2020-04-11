@@ -54,11 +54,9 @@
 <%= render_contact_tabs contact_tabs(@contact) %>
 
 <% content_for :sidebar do %>
-
-	<%= render :partial => 'common/sidebar' %>
 	<%= render :partial => 'attributes' %>
 	<%= call_hook(:view_contacts_sidebar_after_attributes, :contact => @contact) %>
-	<%= render :partial => 'contacts_issues/issues', :locals => {:contact => @contact, :issues => @contact_issues} %>
+	<%= render partial: 'common/related_issues', locals: { issues: @contact_issues } %>
 	<%= call_hook(:view_contacts_sidebar_after_tasks, :contact => @contact) %>
 	<% if !@contact.background.blank? %>
 		<h3><%= l(:label_crm_background_info) %></h3>
@@ -69,13 +67,10 @@
 	 <%= render :partial => 'contacts_projects/related' %>
   </div>
 
-	<%= render :partial => 'common/recently_viewed' %>
-
 <% end %>
 
 <% content_for :header_tags do %>
 	<%= javascript_include_tag :contacts, :plugin => 'redmine_contacts'  %>
-	<%= stylesheet_link_tag :contacts_sidebar, :plugin => 'redmine_contacts' %>
 	<%= auto_discovery_link_tag(:atom, {:format => 'atom', :key => User.current.rss_key}, :title => "#{@contact.name} - ##{@contact.id}") %>
 
 <% end %>

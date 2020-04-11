@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -47,7 +47,6 @@ class ContactsDuplicatesController < ApplicationController
 
   def merge
     @duplicate.notes << @contact.notes
-    @duplicate.issues << @contact.issues
     @duplicate.projects << @contact.projects
     @duplicate.email = (@duplicate.emails | @contact.emails).join(', ')
     @duplicate.phone = (@duplicate.phones | @contact.phones).join(', ')

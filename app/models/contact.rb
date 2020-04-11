@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -82,24 +82,21 @@ class Contact < ActiveRecord::Base
 
   has_many :notes, :as => :source, :class_name => 'ContactNote', :dependent => :delete_all
   has_many :addresses, :dependent => :destroy, :as => :addressable, :class_name => 'Address'
-  belongs_to :assigned_to, :class_name => 'User', :foreign_key => 'assigned_to_id'
+  belongs_to :assigned_to, :class_name => 'Principal', :foreign_key => 'assigned_to_id'
   belongs_to :author, :class_name => 'User', :foreign_key => 'author_id'
 
   if ActiveRecord::VERSION::MAJOR >= 4
     has_one :avatar, lambda { where("#{Attachment.table_name}.description = 'avatar'") }, :class_name => 'Attachment', :as => :container, :dependent => :destroy
     has_one :address, lambda { where(:address_type => 'business') }, :dependent => :destroy, :as => :addressable, :class_name => 'Address'
     has_and_belongs_to_many :projects, :uniq => true
-    has_and_belongs_to_many :issues, lambda { order("#{Issue.table_name}.due_date") }, :uniq => true
   else
     has_one :avatar, :conditions => "#{Attachment.table_name}.description = 'avatar'", :class_name => 'Attachment', :as => :container, :dependent => :destroy
     has_one :address, :conditions => { :address_type => 'business' }, :dependent => :destroy, :as => :addressable, :class_name => 'Address'
     has_and_belongs_to_many :projects, :uniq => true
-    has_and_belongs_to_many :issues, :order => "#{Issue.table_name}.due_date", :uniq => true
   end
 
   attr_accessor :phones
   attr_accessor :emails
-  acts_as_viewable
   rcrm_acts_as_taggable
   acts_as_watchable
   acts_as_attachable :view_permission => :view_contacts,
@@ -258,6 +255,14 @@ class Contact < ActiveRecord::Base
     scope
   end
 
+  def related_issues
+    issue_ids = CustomValue.joins(:custom_field).where("custom_fields.type = 'IssueCustomField' AND custom_fields.field_format = 'contact'")
+                                                .where(value: "#{id}")
+                                                .pluck(:customized_id)
+                                                .uniq
+    Issue.visible.where(id: issue_ids)
+  end
+
   def duplicates(limit = 10)
     cond = "((1=1) "
     cond << "AND LOWER(#{Contact.table_name}.first_name) LIKE LOWER(:first_name) " unless first_name.blank?
@@ -410,11 +415,11 @@ class Contact < ActiveRecord::Base
   end
 
   def phones
-    @phones || phone ? phone.split(/, */) : []
+    @phones ||= phone ? phone.split(/, */) : []
   end
 
   def emails
-    @emails || email ? email.split(/, */).map { |m| m.strip } : []
+    @emails ||= email ? email.split(/, */).map { |m| m.strip } : []
   end
 
   def primary_email

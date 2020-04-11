@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -22,47 +22,20 @@ module RedmineContacts
     module SettingPatch
       def self.included(base)
         base.extend(ClassMethods)
-        # base.send(:include, InstanceMethods)
 
         base.class_eval do
-          unloadable
-          # Setting.available_settings["disable_taxes"] = {'default' => 0}
-          # @@available_settings["disable_taxes"] = {}
-
+          class << self
+            alias_method 'plugin_redmine_contacts=_without_contacts', :plugin_redmine_contacts=
+            alias_method :plugin_redmine_contacts=, 'plugin_redmine_contacts=_with_contacts'
+          end
         end
       end
 
       module ClassMethods
-
-        # Setting.available_settings["disable_taxes"] = {}
-
-        # def disable_taxes?
-        #   self[:disable_taxes].to_i > 0
-        # end
-
-        # def disable_taxes=(value)
-        #   self[:disable_taxes] = value
-        # end
-
-        %w(disable_taxes default_tax tax_type default_currency money_thousands_delimiter money_decimal_separator).each do |name|
-          src = <<-END_SRC
-          Setting.available_settings["#{name}"] = ""
-
-          def #{name}
-            self[:#{name}]
-          end
-
-          def #{name}?
-            self[:#{name}].to_i > 0
-          end
-
-          def #{name}=(value)
-            self[:#{name}] = value
-          end
-          END_SRC
-          class_eval src, __FILE__, __LINE__
+        define_method('plugin_redmine_contacts=_with_contacts') do |settings|
+          updated_settings = plugin_redmine_contacts.merge(settings)
+          send('plugin_redmine_contacts=_without_contacts', updated_settings)
         end
-
       end
     end
   end

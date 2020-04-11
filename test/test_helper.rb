@@ -3,7 +3,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -59,11 +59,11 @@ module RedmineContacts
     end
 
     def with_contacts_settings(options, &block)
-      Setting.plugin_redmine_contacts.stubs(:[]).returns(nil)
-      options.each { |k, v| Setting.plugin_redmine_contacts.stubs(:[]).with(k).returns(v) }
+      ContactsSetting.stubs(:[]).returns(nil)
+      options.each { |k, v| ContactsSetting.stubs(k).returns(v) }
       yield
     ensure
-      options.each { |_k, _v| Setting.plugin_redmine_contacts.unstub(:[]) }
+      options.each { |_k, _v| ContactsSetting.unstub(:[]) }
     end
   end
 end
@@ -144,6 +144,8 @@ class RedmineContacts::TestCase
       EnabledModule.create(:project => project, :name => 'contacts')
       EnabledModule.create(:project => project, :name => 'deals')
     end
+
+    RedmineCrm::Settings.values && RedmineCrm::Settings.apply = { 'thousands_delimiter' => '.', 'decimal_separator' => ',' }
   end
 end
 

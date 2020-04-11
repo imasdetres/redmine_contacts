@@ -3,7 +3,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -49,7 +49,6 @@ class ContactsControllerTest < ActionController::TestCase
 
   RedmineContacts::TestCase.create_fixtures(Redmine::Plugin.find(:redmine_contacts).directory + '/test/fixtures/', [:contacts,
                                                                                                                     :contacts_projects,
-                                                                                                                    :contacts_issues,
                                                                                                                     :deals,
                                                                                                                     :notes,
                                                                                                                     :tags,
@@ -71,7 +70,6 @@ class ContactsControllerTest < ActionController::TestCase
     assert_select 'a', :html => /Domoway/
     assert_select 'a', :html => /Marat/
     assert_select 'h3', :html => /Tags/
-    assert_select 'h3', :html => /Recently viewed/
     assert_select 'div#tags span#single_tags span.tag-label-color a', 'test'
     assert_select 'div#tags span#single_tags span.tag-label-color a', 'main'
   end
@@ -86,7 +84,6 @@ class ContactsControllerTest < ActionController::TestCase
     assert_select 'a', :html => /Domoway/
     assert_select 'a', :html => /Marat/
     assert_select 'h3', :html => /Tags/
-    assert_select 'h3', :html => /Recently viewed/
   end
 
   def test_should_not_absolute_links
@@ -117,7 +114,6 @@ class ContactsControllerTest < ActionController::TestCase
     assert_select 'div#tags_data span.tag-label-color a', 'test'
     assert_select 'div#tab-placeholder-contacts'
     assert_select 'div#comments div#notes table.note_data td.name h4', 4
-    assert_select 'h3', 'Recently viewed'
   end
 
   def test_get_show_with_long_note

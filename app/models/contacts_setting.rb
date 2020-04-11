@@ -1,7 +1,7 @@
 # This file is a part of Redmine CRM (redmine_contacts) plugin,
 # customer relationship management plugin for Redmine
 #
-# Copyright (C) 2010-2019 RedmineUP
+# Copyright (C) 2010-2020 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_contacts is free software: you can redistribute it and/or modify
@@ -17,62 +17,29 @@
 # You should have received a copy of the GNU General Public License
 # along with redmine_contacts.  If not, see <http://www.gnu.org/licenses/>.
 
-class ContactsSetting < ActiveRecord::Base
-  unloadable
-  include Redmine::SafeAttributes
-
-  TAX_TYPE_EXCLUSIVE = 1
-  TAX_TYPE_INCLUSIVE = 2
-
-  belongs_to :project
-
-  attr_protected :id if ActiveRecord::VERSION::MAJOR <= 4
-  safe_attributes 'name', 'value', 'project_id'
-
-  cattr_accessor :settings
-  acts_as_attachable
-
-  # Hash used to cache setting values
-  @contacts_cached_settings = {}
-  @contacts_cached_cleared_on = Time.now
-
-  validates_uniqueness_of :name, :scope => [:project_id]
-
-  # Returns the value of the setting named name
+class ContactsSetting
   def self.[](name, project_id)
     project_id = project_id.id if project_id.is_a?(Project)
-    v = @contacts_cached_settings[hk(name, project_id)]
-    v ? v : (@contacts_cached_settings[hk(name, project_id)] = find_or_default(name, project_id).value)
+    return settings[name.to_s].to_s unless project_id
+    return settings['projects'][project_id][name.to_s].to_s if settings['projects'] && settings['projects'][project_id]
+    ''
   end
 
-  def self.[]=(name, project_id, v)
+  def self.[]=(name, project_id, value)
+    assignee_settings = settings.stringify_keys
     project_id = project_id.id if project_id.is_a?(Project)
-    setting = find_or_default(name, project_id)
-    setting.value = (v ? v : '')
-    @contacts_cached_settings[hk(name, project_id)] = nil
-    setting.save
-    setting.value
-  end
-
-  # Checks if settings have changed since the values were read
-  # and clears the cache hash if it's the case
-  # Called once per request
-  def self.check_cache
-    settings_updated_on = ContactsSetting.maximum(:updated_on)
-    if settings_updated_on && @contacts_cached_cleared_on <= settings_updated_on
-      clear_cache
+    if project_id
+      assignee_settings['projects'] ||= {}
+      assignee_settings['projects'][project_id] = { name.to_s => '' } unless assignee_settings['projects'][project_id]
+      assignee_settings['projects'][project_id][name.to_s] = value
+    else
+      assignee_settings[name.to_s] = value
     end
-  end
-
-  # Clears the settings cache
-  def self.clear_cache
-    @contacts_cached_settings.clear
-    @contacts_cached_cleared_on = Time.now
-    logger.info 'Contacts settings cache cleared.' if logger
+    Setting[:plugin_redmine_contacts] = assignee_settings
   end
 
   def self.contact_name_format
-    Setting.plugin_redmine_contacts['name_format'] || :firstname_lastname
+    settings['name_format'] || :firstname_lastname
   end
 
   def self.vcard?
@@ -84,64 +51,61 @@ class ContactsSetting < ActiveRecord::Base
   end
 
   def self.monochrome_tags?
-    !!Setting.plugin_redmine_contacts['monochrome_tags']
+    settings['monochrome_tags'].to_i > 0
   end
 
   def self.contacts_show_in_top_menu?
-    !!Setting.plugin_redmine_contacts['contacts_show_in_top_menu']
+    settings['contacts_show_in_top_menu'].to_i > 0
   end
 
   def self.contacts_show_in_app_menu?
-    !!Setting.plugin_redmine_contacts['contacts_show_in_app_menu']
+    settings['contacts_show_in_app_menu'].to_i > 0
   end
 
   def self.default_country
-    Setting.plugin_redmine_contacts['default_country']
+    settings['default_country']
   end
 
   def self.cross_project_contacts?
-    Setting.plugin_redmine_contacts['cross_project_contacts'].to_i > 0
+    settings['cross_project_contacts'].to_i > 0
   end
 
   # Finance
-
   def self.default_currency
-    Setting.plugin_redmine_contacts['default_currency'] || 'USD'
+    RedmineCrm::Settings::Money.default_currency
   end
 
   def self.major_currencies
-    currencies = Setting.plugin_redmine_contacts['major_currencies'].to_s.split(',').select { |c| !c.blank? }.map(&:strip)
-    currencies = %w(USD EUR GBP RUB CHF) if currencies.blank?
-    currencies.compact.uniq
+    RedmineCrm::Settings::Money.major_currencies
   end
 
   def self.default_tax
-    Setting.plugin_redmine_contacts['default_tax'].to_f
+    RedmineCrm::Settings::Money.default_tax
   end
 
   def self.tax_type
-    ((['1', '2'] & [Setting.plugin_redmine_contacts['tax_type'].to_s]).first || TAX_TYPE_EXCLUSIVE).to_i
+    RedmineCrm::Settings::Money.tax_type
   end
 
   def self.tax_exclusive?
-    ContactsSetting.tax_type == TAX_TYPE_EXCLUSIVE
+    RedmineCrm::Settings::Money.tax_exclusive?
   end
 
   def self.thousands_delimiter
-    ([' ', ',', '.'] & [Setting.plugin_redmine_contacts['thousands_delimiter']]).first || ' '
+    RedmineCrm::Settings::Money.thousands_delimiter || ' '
   end
 
   def self.decimal_separator
-    ([',', '.'] & [Setting.plugin_redmine_contacts['decimal_separator']]).first || '.'
+    RedmineCrm::Settings::Money.decimal_separator || '.'
   end
 
   def self.disable_taxes?
-    !!Setting.plugin_redmine_contacts['disable_taxes']
+    RedmineCrm::Settings::Money.disable_taxes?
   end
 
   def self.post_address_format
-    unless Setting.plugin_redmine_contacts['post_address_format'].blank?
-      Setting.plugin_redmine_contacts['post_address_format'].to_s.strip
+    if settings['post_address_format'].present?
+      settings['post_address_format'].to_s.strip
     else
       "%street1%\n%street2%\n%city%, %postcode%\n%region%\n%country%"
     end
@@ -149,16 +113,7 @@ class ContactsSetting < ActiveRecord::Base
 
   private
 
-  def self.hk(name, project_id)
-    "#{name}-#{project_id.to_s}"
+  def self.settings
+    RedmineContacts.settings
   end
-
-  # Returns the Setting instance for the setting named name
-  # (record found in database or new record with default value)
-  def self.find_or_default(name, project_id)
-    name = name.to_s
-    setting = find_by_name_and_project_id(name, project_id)
-    setting ||= new(:name => name, :value => '', :project_id => project_id)
-  end
-
 end

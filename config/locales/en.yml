@@ -618,3 +618,8 @@ en:
 
   text_crm_string_incorrect_format: have incorrect format
   label_deal_items: Deal items
+  button_duplicate: Duplicate
+
+  label_crm_deal_linked_deal_error: Deals can't be linked
+
+  label_crm_related_issues: Related issues

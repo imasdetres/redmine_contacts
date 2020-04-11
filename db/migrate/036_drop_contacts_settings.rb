@@ -17,8 +17,32 @@
 # You should have received a copy of the GNU General Public License
 # along with redmine_contacts.  If not, see <http://www.gnu.org/licenses/>.
 
-class CreateContactsSettings < Rails.version < '5.1' ? ActiveRecord::Migration : ActiveRecord::Migration[4.2]
+class DropContactsSettings < Rails.version < '5.1' ? ActiveRecord::Migration : ActiveRecord::Migration[4.2]
+  class ::OldContactsSettings < ActiveRecord::Base
+    self.table_name = 'contacts_settings'
+
+    def self.convert
+      setting = Setting.where(name: 'plugin_redmine_contacts').first || Setting.new(name: 'plugin_redmine_contacts')
+      values = { projects: {} }
+
+      project_ids = pluck(:project_id).uniq
+      project_ids.each do |pid|
+        values[:projects][pid] = {} unless values[:projects][pid]
+        where(project_id: pid).each { |cs| values[:projects][pid][cs.name] = cs.value }
+      end
+
+      setting.value = setting.value ? setting.value.merge(values) : values
+      setting.save
+    end
+  end
+
   def self.up
+
+    ::OldContactsSettings.convert
+    drop_table :contacts_settings
+  end
+
+  def self.down
     create_table :contacts_settings do |t|
       t.column :name, :string
       t.column :value, :text
@@ -26,9 +50,5 @@ class CreateContactsSettings < Rails.version < '5.1' ? ActiveRecord::Migration :
       t.column :updated_on, :datetime
     end
     add_index :contacts_settings, :project_id
-  end
-
-  def self.down
-    drop_table :contacts_settings
   end
 end
